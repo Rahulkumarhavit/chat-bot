@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Widget</title>
+  <style>
+    /* Basic styling for the chat widget */
+    .chat-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      height: 400px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .chat-body {
+      flex-grow: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    .chat-input input {
+      flex-grow: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+
+    .chat-input button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-widget" id="chatWidget">
+    <div class="chat-header">Chat with us!</div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Ask a question...">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+  <script>
+    const socket = io('http://localhost:5000'); // Replace with your server URL
+
+    const chatBody = document.getElementById('chatBody');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // Send the user query to the server
+    sendBtn.addEventListener('click', () => {
+      const query = userInput.value;
+      if (query.trim() !== '') {
+        addMessage('You', query);
+        socket.emit('userQuery', query);
+        userInput.value = '';
+      }
+    });
+
+    // Listen for bot responses
+    socket.on('botResponse', (data) => {
+      if (data.error) {
+        addMessage('Bot', 'Sorry, something went wrong.');
+      } else {
+        addMessage('Bot', data.answer);
+        if (data.recommendedProducts && data.recommendedProducts.length > 0) {
+          addMessage('Bot', 'Here are some products you may like:');
+          data.recommendedProducts.forEach((product) => {
+            addMessage('Bot', `${product.name} - ${product.description} - ${product.price}`);
+          });
+        }
+      }
+    });
+
+    // Function to add a message to the chat body
+    function addMessage(sender, message) {
+      const messageElement = document.createElement('div');
+      messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+      chatBody.appendChild(messageElement);
+      chatBody.scrollTop = chatBody.scrollHeight; // Auto-scroll to the bottom
+    }
+  </script>
+</body>
+</html>
