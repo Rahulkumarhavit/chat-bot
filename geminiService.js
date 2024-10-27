@@ -8,8 +8,8 @@ const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 // Function to ask Gemini for a response
 async function askGemini(query) {
   try {
-    const prompt = `You are a chatbot for a diwali business that sells products like Candles, lights, diyas, lamps,rangoli. Please answer the following query only with information related to these products: ${query}`;
-    // const prompt = `You are a chatbot for a dairy business that sells products like cow ghee, butter, curd. Please answer the following query only with information related to these products: ${query}`;
+    // const prompt = `You are a chatbot for a diwali business that sells products like Candles, lights, diyas, lamps,rangoli. Please answer the following query only with information related to these products: ${query}`;
+    const prompt = `You are a chatbot for a dairy business that sells products like cow ghee, butter, curd. Please answer the following query only with information related to these products: ${query}`;
     
     const result = await model.generateContent(prompt);
     let geminiResponse = result.response.text();
